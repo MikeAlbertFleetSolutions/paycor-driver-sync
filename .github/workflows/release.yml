@@ -31,18 +31,22 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            /opt/oracle/
             /home/runner/go/bin/golangci-lint
-          key: ${{ runner.os }}-tools-ora199-gol1501
+            /home/runner/go/bin/govulncheck
+          key: ${{ runner.os }}-tools-gol-govuln
           restore-keys: |
             ${{ runner.os }}-tools-
 
       - name: Install golangci-lint
         if: steps.cachebuildtools.outputs.cache-hit != 'true'
         env:
-          GOLANGCI_LINT_VERSION: v1.50.1
+          GOLANGCI_LINT_VERSION: v1.61
         run: |
           sudo curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
+
+      - name: Install govulncheck
+        if: steps.cachebuildtools.outputs.cache-hit != 'true'
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
       - name: Configure git for private modules
         run: git config --global url."https://${{ secrets.PERSONAL_ACCESS_USERNAME }}:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com".insteadOf "https://github.com"
@@ -56,9 +60,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make codetest
-
-      - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
       - name: Run govulncheck
         run: govulncheck -test ./...
