@@ -3,7 +3,7 @@ package := $(shell basename `pwd`)
 # strip debugging information & include buildnumber in executable
 LDFLAGS=-ldflags "-s -w -X main.buildnum=${BUILD_NUM}"
 
-.PHONY: default get codetest build release fmt lint vet vuln run
+.PHONY: default get codetest build fmt lint vet vuln run
 
 default: fmt codetest
 
@@ -17,14 +17,10 @@ endif
 
 codetest: lint vet vuln
 
-build:
+build: default
 	mkdir -p target
 	rm -f target/*
 	GOOS=linux GOARCH=amd64 go build -tags=nomsgpack ${LDFLAGS} -v -o target/$(package) github.com/MikeAlbertFleetSolutions/paycor-driver-sync/cmd/paycor-driver-sync
-
-release: build
-	zip -j target/$(package)_linux_amd64.zip target/$(package)
-	rm -f target/$(package)
 
 fmt:
 	go fmt ./...
@@ -42,5 +38,5 @@ vet:
 vuln:
 	govulncheck -test ./...
 
-run: default build
+run: build
 	target/paycor-driver-sync -config paycor-driver-sync.yaml
