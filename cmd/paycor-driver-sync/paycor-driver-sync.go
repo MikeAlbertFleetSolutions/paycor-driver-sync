@@ -42,26 +42,20 @@ func main() {
 	}
 
 	// create paycor client
-	pc, err := paycor.NewClient(config.Paycor.Endpoint, config.Paycor.OAuth.ClientID, config.Paycor.OAuth.ClientSecret, config.Paycor.OAuth.RefreshToken, config.Paycor.APImSubscriptionKey)
-	if err != nil {
-		log.Printf("%+v", err)
-		os.Exit(1)
-	}
-
-	// update config with new refresh token
-	config.Paycor.OAuth.RefreshToken = pc.Paycor.RefreshToken
-	err = config.Write(configFile)
+	pc, err := paycor.NewClient(config.Paycor.PublicKey, config.Paycor.PrivateKey, config.Paycor.Host)
 	if err != nil {
 		log.Printf("%+v", err)
 		os.Exit(1)
 	}
 
 	// get employees to sync over
-	emps, err := pc.GetEmployeesByTenantID(config.Paycor.TenantID)
+	drivers, err := pc.GetDriverHomeAddresses(config.Paycor.HomeAddressesReport)
 	if err != nil {
 		log.Printf("%+v", err)
 		os.Exit(1)
 	}
 
-	log.Printf("Employees %+v", emps)
+	for _, driver := range drivers {
+		log.Printf("Driver %+v", driver)
+	}
 }

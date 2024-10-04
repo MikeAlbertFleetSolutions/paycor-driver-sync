@@ -32,44 +32,30 @@ func (c *configuration) validate() error {
 }
 
 type paycor struct {
-	TenantID int32
-	Endpoint string
-	OAuth    struct {
-		ClientID     string
-		ClientSecret string
-		RefreshToken string
-	}
-	APImSubscriptionKey string
+	PublicKey           string
+	PrivateKey          string
+	Host                string
+	HomeAddressesReport string
 }
 
 func (p *paycor) validate() error {
-	if p.TenantID == 0 {
-		err := fmt.Errorf(msgMissingField, "Paycor TenantID")
+	if len(p.PublicKey) == 0 {
+		err := fmt.Errorf(msgMissingField, "Paycor PublicKey")
 		log.Printf("%+v", err)
 		return err
 	}
-	if len(p.Endpoint) == 0 {
-		err := fmt.Errorf(msgMissingField, "Paycor Endpoint")
+	if len(p.PrivateKey) == 0 {
+		err := fmt.Errorf(msgMissingField, "Paycor PrivateKey")
 		log.Printf("%+v", err)
 		return err
 	}
-	if len(p.OAuth.ClientID) == 0 {
-		err := fmt.Errorf(msgMissingField, "Paycor OAuth ClientID")
+	if len(p.Host) == 0 {
+		err := fmt.Errorf(msgMissingField, "Paycor Host")
 		log.Printf("%+v", err)
 		return err
 	}
-	if len(p.OAuth.ClientSecret) == 0 {
-		err := fmt.Errorf(msgMissingField, "Paycor OAuth ClientSecret")
-		log.Printf("%+v", err)
-		return err
-	}
-	if len(p.OAuth.RefreshToken) == 0 {
-		err := fmt.Errorf(msgMissingField, "Paycor OAuth RefreshToken")
-		log.Printf("%+v", err)
-		return err
-	}
-	if len(p.APImSubscriptionKey) == 0 {
-		err := fmt.Errorf(msgMissingField, "Paycor APImSubscriptionKey")
+	if len(p.HomeAddressesReport) == 0 {
+		err := fmt.Errorf(msgMissingField, "Paycor HomeAddressesReport")
 		log.Printf("%+v", err)
 		return err
 	}
