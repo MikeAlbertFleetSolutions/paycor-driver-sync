@@ -5,9 +5,7 @@ import (
 	"encoding/csv"
 	"io"
 	"log"
-	"net/http"
 	"strings"
-	"time"
 
 	"github.com/MikeAlbertFleetSolutions/go-paycor"
 )
@@ -25,8 +23,7 @@ type DriverHomeAddress struct {
 
 // Client is our type
 type Client struct {
-	paycor     *paycor.Client
-	httpClient *http.Client
+	paycor *paycor.Client
 }
 
 // NewClient creates a new client for the Paycor API
@@ -36,9 +33,6 @@ func NewClient(publicKey, privateKey, host string) (*Client, error) {
 
 	client := &Client{
 		paycor: paycorClient,
-		httpClient: &http.Client{
-			Timeout: 15 * time.Second,
-		},
 	}
 
 	return client, nil
