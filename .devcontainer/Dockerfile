@@ -31,7 +31,7 @@ RUN apt-get update &&\
   libaio1
 
 # golang
-COPY --from=golang:1.23 /usr/local/go /usr/local/go
+COPY --from=golang:1.24 /usr/local/go /usr/local/go
 ENV GOPATH /go
 ENV GOROOT /usr/local/go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH

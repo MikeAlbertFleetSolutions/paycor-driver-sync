@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/MikeAlbertFleetSolutions/paycor-driver-sync/config"
+	"github.com/MikeAlbertFleetSolutions/paycor-driver-sync/mikealbert"
 	"github.com/MikeAlbertFleetSolutions/paycor-driver-sync/paycor"
 )
 
@@ -48,14 +49,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	// get employees to sync over
-	drivers, err := pc.GetDriverHomeAddresses(config.Paycor.HomeAddressesReport)
+	// create mike albert client
+	mac, err := mikealbert.NewClient(config.MikeAlbert.ClientId, config.MikeAlbert.ClientSecret, config.MikeAlbert.Endpoint)
 	if err != nil {
 		log.Printf("%+v", err)
 		os.Exit(1)
 	}
 
-	for _, driver := range drivers {
-		log.Printf("Driver %+v", driver)
+	// get employees to sync over
+	pDrivers, err := pc.GetDriverHomeAddresses(config.Paycor.HomeAddressesReport)
+	if err != nil {
+		log.Printf("%+v", err)
+		os.Exit(1)
+	}
+
+	// update drivers in mike albert
+	for _, d := range pDrivers {
+		maDrivers, err := mac.FindDrivers(d.EmployeeNumber)
+		if err != nil {
+			log.Printf("EmployeeNumber %s: %+v", d.EmployeeNumber, err)
+			continue
+		}
+
+		if len(maDrivers) > 0 {
+			_, err := mac.UpdateDriver(*maDrivers[0].DriverId, d.Address1, d.Address2, d.ZIPCode)
+			if err != nil {
+				log.Printf("EmployeeNumber %s: %+v", d.EmployeeNumber, err)
+				continue
+			}
+		}
 	}
 }

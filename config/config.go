@@ -12,17 +12,24 @@ var (
 	msgMissingField = "required configuration missing %s"
 
 	// unwrapped config values
-	Paycor paycor
+	Paycor     paycor
+	MikeAlbert mikealbert
 )
 
 type configuration struct {
-	Paycor paycor
+	Paycor     paycor
+	MikeAlbert mikealbert
 }
 
 func (c *configuration) validate() error {
 	var err error
 
 	err = c.Paycor.validate()
+	if err != nil {
+		log.Printf("%+v", err)
+		return err
+	}
+	err = c.MikeAlbert.validate()
 	if err != nil {
 		log.Printf("%+v", err)
 		return err
@@ -63,6 +70,32 @@ func (p *paycor) validate() error {
 	return nil
 }
 
+type mikealbert struct {
+	ClientId     string
+	ClientSecret string
+	Endpoint     string
+}
+
+func (m *mikealbert) validate() error {
+	if len(m.ClientId) == 0 {
+		err := fmt.Errorf(msgMissingField, "Mike Albert ClientId")
+		log.Printf("%+v", err)
+		return err
+	}
+	if len(m.ClientSecret) == 0 {
+		err := fmt.Errorf(msgMissingField, "Mike Albert ClientSecret")
+		log.Printf("%+v", err)
+		return err
+	}
+	if len(m.Endpoint) == 0 {
+		err := fmt.Errorf(msgMissingField, "Mike Albert Endpoint")
+		log.Printf("%+v", err)
+		return err
+	}
+
+	return nil
+}
+
 // FromFile reads the application configuration from file configFile
 func FromFile(configFile string) error {
 	// read config
@@ -87,6 +120,7 @@ func FromFile(configFile string) error {
 	}
 
 	Paycor = c.Paycor
+	MikeAlbert = c.MikeAlbert
 
 	return nil
 }
@@ -95,7 +129,8 @@ func FromFile(configFile string) error {
 func Write(configFile string) error {
 	// wrap
 	c := configuration{
-		Paycor: Paycor,
+		Paycor:     Paycor,
+		MikeAlbert: MikeAlbert,
 	}
 
 	// make sure valid before proceeding
