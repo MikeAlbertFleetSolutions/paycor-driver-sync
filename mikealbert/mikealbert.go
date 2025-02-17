@@ -30,12 +30,16 @@ type Driver struct {
 
 // Client is our type
 type Client struct {
-	endpoint       string
+	clientId     string
+	clientSecret string
+	endpoint     string
+
 	httpClient     *http.Client
 	authentication struct {
 		accessToken string
 		expires     time.Time
 	}
+
 	prevRequest time.Time
 }
 
@@ -54,7 +58,9 @@ func firstN(s string, n int) string {
 // NewClient creates a new mikealbert client
 func NewClient(clientId, clientSecret, endpoint string) (*Client, error) {
 	client := &Client{
-		endpoint: endpoint,
+		clientId:     clientId,
+		clientSecret: clientSecret,
+		endpoint:     endpoint,
 		httpClient: &http.Client{
 			Timeout: time.Second * 60,
 		},
@@ -94,7 +100,18 @@ func (client *Client) makeRequest(method, url string, body io.Reader) ([]byte, e
 
 	// add authentication token
 	if len(client.authentication.accessToken) > 0 {
-		request.Header.Add("Authorization", client.authentication.accessToken)
+		// need to re-authenticate?
+		if !client.authentication.expires.After(time.Now().UTC().Add(5 * time.Minute)) {
+			err := client.authenticate(client.clientId, client.clientSecret)
+			if err != nil {
+				log.Printf("%+v", err)
+				return nil, err
+			}
+		}
+
+		if len(client.authentication.accessToken) > 0 {
+			request.Header.Add("Authorization", client.authentication.accessToken)
+		}
 	}
 
 	// make request, get response
