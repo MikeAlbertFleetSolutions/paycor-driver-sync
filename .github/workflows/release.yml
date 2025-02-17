@@ -5,10 +5,10 @@ jobs:
     name: Codetest
     runs-on: ubuntu-20.04
     steps:
-      - name: Set up Go 1.23
+      - name: Set up Go 1.24
         uses: actions/setup-go@v3
         with:
-          go-version: '1.23.1'
+          go-version: '1.24.0'
         id: go
 
       - name: Check out code into the Go module directory
