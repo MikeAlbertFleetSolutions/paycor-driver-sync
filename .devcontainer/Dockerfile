@@ -44,7 +44,7 @@ RUN cp /go/bin/dlv /go/bin/dlv-dap
 RUN go install github.com/uudashr/gopkgs/v2/cmd/gopkgs@latest
 RUN go install github.com/ramya-rao-a/go-outline@latest
 RUN go install golang.org/x/vuln/cmd/govulncheck@latest
-RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.50.1
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.5
 
 # docker binaries
 COPY --from=docker:20.10 /usr/local/bin/docker /usr/local/bin/docker

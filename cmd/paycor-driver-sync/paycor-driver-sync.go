@@ -76,7 +76,7 @@ func main() {
 		}
 
 		if len(maDrivers) > 1 {
-			log.Printf("EmployeeNumber %s: more than one driver in Mike Albert system with this employee number!", d.EmployeeNumber)
+			log.Printf("EmployeeNumber %s: more than one driver in Mike Albert system with this employee number", d.EmployeeNumber)
 			continue
 		}
 
