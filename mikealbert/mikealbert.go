@@ -1,6 +1,7 @@
 package mikealbert
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/time/rate"
 )
 
 type ErrorResponse struct {
@@ -40,7 +43,7 @@ type Client struct {
 	endpoint       string
 	authentication Authentication
 	httpClient     *http.Client
-	prevRequest    time.Time
+	ratelimiter    *rate.Limiter
 }
 
 // return first n characters of a string
@@ -64,6 +67,7 @@ func NewClient(clientId, clientSecret, endpoint string) (*Client, error) {
 		httpClient: &http.Client{
 			Timeout: time.Second * 60,
 		},
+		ratelimiter: rate.NewLimiter(rate.Every(1100*time.Millisecond), 2), // rate limiting, < 2 calls per second
 	}
 
 	err := client.authenticate(clientId, clientSecret)
@@ -77,13 +81,11 @@ func NewClient(clientId, clientSecret, endpoint string) (*Client, error) {
 
 // makeRequest is a helper function to wrap making REST calls to mike albert
 func (client *Client) makeRequest(method, url string, body io.Reader) ([]byte, error) {
-	// mike albert does rate limiting
-	// make sure it has been at least 500 milliseconds since the last call
-	elapse := time.Since(client.prevRequest)
-	if elapse < 500*time.Millisecond {
-		time.Sleep(500 * time.Millisecond)
+	err := client.ratelimiter.Wait(context.Background())
+	if err != nil {
+		log.Printf("%+v", err)
+		return nil, err
 	}
-	defer func() { client.prevRequest = time.Now() }()
 
 	// create request
 	request, err := http.NewRequest(method, url, body)
