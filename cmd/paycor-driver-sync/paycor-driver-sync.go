@@ -71,19 +71,12 @@ func main() {
 			continue
 		}
 
-		if len(maDrivers) == 0 {
-			continue
-		}
-
-		if len(maDrivers) > 1 {
-			log.Printf("EmployeeNumber %s: more than one driver in Mike Albert system with this employee number", d.EmployeeNumber)
-			continue
-		}
-
-		_, err = mac.UpdateDriver(*maDrivers[0].DriverId, d.Address1, d.Address2, d.ZIPCode)
-		if err != nil {
-			log.Printf("EmployeeNumber %s: %+v", d.EmployeeNumber, err)
-			continue
+		for _, maDriver := range maDrivers {
+			_, err = mac.UpdateDriver(*maDriver.DriverId, d.Address1, d.Address2, d.ZIPCode)
+			if err != nil {
+				log.Printf("EmployeeNumber %s: %+v", d.EmployeeNumber, err)
+				continue
+			}
 		}
 	}
 }
