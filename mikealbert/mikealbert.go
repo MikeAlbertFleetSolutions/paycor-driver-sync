@@ -28,19 +28,19 @@ type Driver struct {
 	EmployeeNumber *string `json:"employeeNumber,omitempty"`
 }
 
+type Authentication struct {
+	accessToken string
+	expires     time.Time
+}
+
 // Client is our type
 type Client struct {
-	clientId     string
-	clientSecret string
-	endpoint     string
-
+	clientId       string
+	clientSecret   string
+	endpoint       string
+	authentication Authentication
 	httpClient     *http.Client
-	authentication struct {
-		accessToken string
-		expires     time.Time
-	}
-
-	prevRequest time.Time
+	prevRequest    time.Time
 }
 
 // return first n characters of a string
@@ -156,6 +156,8 @@ func (client *Client) makeRequest(method, url string, body io.Reader) ([]byte, e
 
 // helper function to authenticate against mikealbert API
 func (client *Client) authenticate(clientId, clientSecret string) error {
+	client.authentication = Authentication{}
+
 	req := struct {
 		ClientId     string `json:"client_id"`
 		ClientSecret string `json:"client_secret"`
@@ -192,8 +194,11 @@ func (client *Client) authenticate(clientId, clientSecret string) error {
 		log.Printf("%+v", err)
 		return err
 	}
-	client.authentication.accessToken = resp.TokenType + " " + resp.AccessToken
-	client.authentication.expires = time.Now().UTC().Add(time.Duration(resp.ExpiresIn) * time.Second)
+
+	client.authentication = Authentication{
+		accessToken: resp.TokenType + " " + resp.AccessToken,
+		expires:     time.Now().UTC().Add(time.Duration(resp.ExpiresIn) * time.Second),
+	}
 
 	return nil
 }
