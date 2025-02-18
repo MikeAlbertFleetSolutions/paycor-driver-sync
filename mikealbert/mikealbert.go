@@ -81,12 +81,6 @@ func NewClient(clientId, clientSecret, endpoint string) (*Client, error) {
 
 // makeRequest is a helper function to wrap making REST calls to mike albert
 func (client *Client) makeRequest(method, url string, body io.Reader) ([]byte, error) {
-	err := client.ratelimiter.Wait(context.Background())
-	if err != nil {
-		log.Printf("%+v", err)
-		return nil, err
-	}
-
 	// create request
 	request, err := http.NewRequest(method, url, body)
 	if err != nil {
@@ -114,6 +108,13 @@ func (client *Client) makeRequest(method, url string, body io.Reader) ([]byte, e
 		if len(client.authentication.accessToken) > 0 {
 			request.Header.Add("Authorization", client.authentication.accessToken)
 		}
+	}
+
+	// rate limit calls to mike albert api
+	err = client.ratelimiter.Wait(context.Background())
+	if err != nil {
+		log.Printf("%+v", err)
+		return nil, err
 	}
 
 	// make request, get response
