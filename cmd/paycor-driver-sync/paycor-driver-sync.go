@@ -57,14 +57,14 @@ func main() {
 	}
 
 	// get employees to sync over
-	pDrivers, err := pc.GetDriverHomeAddresses(config.Paycor.HomeAddressesReport)
+	Drivers, err := pc.GetDriverHomeAddresses(config.Paycor.HomeAddressesReport)
 	if err != nil {
 		log.Printf("%+v", err)
 		os.Exit(1)
 	}
 
 	// update drivers in mike albert
-	for _, d := range pDrivers {
+	for _, d := range Drivers {
 		maDrivers, err := mac.FindDrivers(d.EmployeeNumber)
 		if err != nil {
 			log.Printf("EmployeeNumber %s: %+v", d.EmployeeNumber, err)
