@@ -67,7 +67,7 @@ func NewClient(clientId, clientSecret, endpoint string) (*Client, error) {
 		httpClient: &http.Client{
 			Timeout: time.Second * 60,
 		},
-		ratelimiter: rate.NewLimiter(rate.Every(1100*time.Millisecond), 2), // rate limiting, < 2 calls per second
+		ratelimiter: rate.NewLimiter(rate.Every(1300*time.Millisecond), 2), // rate limiting, < 2 calls per second
 	}
 
 	err := client.authenticate(clientId, clientSecret)
